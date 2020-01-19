@@ -1,2 +1,4 @@
 # osticket-go
-Go wrapper for osTicket API
+Go client for [osTicket](https://osticket.com/) API
+
+
