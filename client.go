@@ -44,6 +44,7 @@ func (api *APIClient) CreateTicket(cmd *CreateTicketCommand) error {
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusCreated {
 		return fmt.Errorf("got status code %d", resp.StatusCode)
 	}
