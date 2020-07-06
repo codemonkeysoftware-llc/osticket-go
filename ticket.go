@@ -1,8 +1,10 @@
 package osticket
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 // CreateTicketCommand contains the fields allowed for making commands. Alert
@@ -19,7 +21,7 @@ type CreateTicketCommand struct {
 	Priority    string        `json:"priority,omitempty"`
 	Source      string        `json:"source,omitempty"`
 	TopicID     string        `json:"topicId,omitempty"`
-	Attachments []*Attachment `json:"attachments"`
+	Attachments []*Attachment `json:"attachments,omitempty"`
 }
 
 // Message is used to create the data url for sending a message. If ContentType
@@ -78,4 +80,25 @@ type Attachment struct {
 	Data     []byte
 	MimeType string
 	Encoding string
+}
+
+func (a *Attachment) MarshalJSON() ([]byte, error) {
+	s := &strings.Builder{}
+	fmt.Fprintf(s, "data:%s;%s,", a.MimeType, a.Encoding)
+	e := base64.NewEncoder(base64.StdEncoding, s)
+	_, err := e.Write(a.Data)
+	if err != nil {
+		return nil, err
+	}
+
+	err = e.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	m := map[string]string{
+		a.Name: s.String(),
+	}
+
+	return json.Marshal(m)
 }

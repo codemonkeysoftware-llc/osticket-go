@@ -2,10 +2,13 @@ package osticket_test
 
 import (
 	"bytes"
+	"encoding/base64"
+	"fmt"
 	"testing"
 
 	"github.com/codemonkeysoftware/osticket-go"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMessageMarshalJSON(t *testing.T) {
@@ -45,6 +48,28 @@ func TestMessageMarshalJSON(t *testing.T) {
 			}
 			assert.Equal(t, string(parts[0]), string(contentType))
 		}
+	})
+}
+func TestTicketMarshalJSON(t *testing.T) {
+	t.Run("correctly marshals attachments", func(t *testing.T) {
+
+		const (
+			name     = "filename.jpg"
+			mimeType = "image/jpeg"
+			content  = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mMUbz3yHwAEfAJhtYFLfQAAAABJRU5ErkJggg=="
+		)
+		contentBytes, err := base64.StdEncoding.DecodeString(content)
+		require.NoError(t, err)
+		m := osticket.Attachment{
+			Name:     name,
+			MimeType: mimeType,
+			Encoding: "base64",
+			Data:     contentBytes,
+		}
+
+		b, err := m.MarshalJSON()
+		assert.NoError(t, err)
+		fmt.Printf("%s", b)
 	})
 }
 
