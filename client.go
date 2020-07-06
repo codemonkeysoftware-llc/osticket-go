@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 
@@ -46,7 +47,11 @@ func (api *APIClient) CreateTicket(cmd *CreateTicketCommand) error {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusCreated {
-		return fmt.Errorf("got status code %d", resp.StatusCode)
+		body := make([]byte, 0)
+		if resp.Body != nil {
+			body, _ = ioutil.ReadAll(resp.Body)
+		}
+		return fmt.Errorf("got status code %d: %s", resp.StatusCode, body)
 	}
 	return nil
 }
